@@ -1,58 +1,98 @@
 // app/(tabs)/alerts.tsx
+// ✅ FIXED VERSION with proper error handling
+
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import { Colors } from "@/constants/Colors";
 import { Layout } from "@/constants/Layout";
 import { useAlerts } from "@/hooks/useAlerts";
-import { Alert } from "@/types/alert.types";
 import { LinearGradient } from "expo-linear-gradient";
 import {
-    AlertCircle,
-    AlertTriangle,
-    Bell,
-    Info,
-    Zap,
+  AlertCircle,
+  AlertTriangle,
+  Bell,
+  Info,
+  RefreshCw,
+  Zap,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
+interface Alert {
+  id: string;
+  device_id: string;
+  user_id: string;
+  severity: "low" | "medium" | "high" | "critical";
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  alert_type: "gas" | "temperature" | "spoilage" | "maintenance";
+  data?: any;
+}
+
 export default function AlertsScreen() {
-  const { alerts, unreadCount, markAsRead, refetch } = useAlerts();
+  const {
+    alerts,
+    unreadCount,
+    markAsRead,
+    refetch,
+    checkForNewAlerts,
+    loading,
+  } = useAlerts();
   const [filter, setFilter] = useState<"all" | "unread" | "critical">("all");
   const [refreshing, setRefreshing] = useState(false);
 
+  // 🐛 DEBUG: Log alerts on mount and when they change
+  useEffect(() => {
+    console.log("📊 Alerts Screen - Current State:");
+    console.log("  Total alerts:", alerts?.length ?? 0);
+    console.log("  Unread count:", unreadCount ?? 0);
+    console.log("  Loading:", loading);
+    console.log("  Alerts data:", JSON.stringify(alerts, null, 2));
+  }, [alerts, unreadCount, loading]);
+
   const onRefresh = async () => {
+    console.log("🔄 Manual refresh triggered");
     setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
+    try {
+      await checkForNewAlerts();
+      await refetch();
+      console.log("✅ Refresh completed");
+    } catch (err) {
+      console.error("❌ Error refreshing alerts:", err);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
-  const filteredAlerts = alerts.filter((alert) => {
+  const filteredAlerts = (alerts || []).filter((alert) => {
     if (filter === "unread") return !alert.is_read;
     if (filter === "critical") return alert.severity === "critical";
     return true;
   });
 
+  console.log(`🔍 Filtered alerts (${filter}):`, filteredAlerts.length);
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <LinearGradient
-        colors={["#4c669f", "#3b5998", "#ffffff"]}
+        colors={["#66BB6A", "#4CAF50", "#388E3C"]}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
         <Text style={styles.headerTitle}>Alerts</Text>
         <Text style={styles.headerSubtitle}>
-          {unreadCount} unread alert{unreadCount !== 1 ? "s" : ""}
+          {unreadCount || 0} unread alert{unreadCount !== 1 ? "s" : ""}
         </Text>
       </LinearGradient>
 
@@ -60,65 +100,98 @@ export default function AlertsScreen() {
       <View style={styles.filtersContainer}>
         <FilterButton
           label="All"
-          count={alerts.length}
+          count={alerts?.length || 0}
           active={filter === "all"}
           onPress={() => setFilter("all")}
         />
         <FilterButton
           label="Unread"
-          count={unreadCount}
+          count={unreadCount || 0}
           active={filter === "unread"}
           onPress={() => setFilter("unread")}
         />
         <FilterButton
           label="Critical"
-          count={alerts.filter((a) => a.severity === "critical").length}
+          count={alerts?.filter((a) => a.severity === "critical").length || 0}
           active={filter === "critical"}
           onPress={() => setFilter("critical")}
         />
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <View style={styles.content}>
-          {filteredAlerts.length === 0 ? (
-            <Animated.View
-              entering={FadeInDown.delay(200).springify()}
-              style={styles.emptyState}
-            >
-              <View style={styles.emptyIconContainer}>
-                <Bell
-                  size={64}
-                  color={Colors.light.textTertiary}
-                  strokeWidth={1.5}
-                />
-              </View>
-              <Text style={styles.emptyTitle}>No Alerts</Text>
-              <Text style={styles.emptyText}>
-                You&apos;re all caught up! No {filter !== "all" ? filter : ""}{" "}
-                alerts to show.
-              </Text>
-            </Animated.View>
-          ) : (
-            filteredAlerts.map((alert, index) => (
-              <AlertCard
-                key={alert.id}
-                alert={alert}
-                delay={index * 50}
-                onPress={() => markAsRead(alert.id)}
-              />
-            ))
-          )}
+      {/* Loading State */}
+      {loading && !refreshing && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4CAF50" />
+          <Text style={styles.loadingText}>Loading alerts...</Text>
         </View>
+      )}
 
-        <View style={{ height: 40 }} />
-      </ScrollView>
+      {/* Content */}
+      {!loading && (
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#4CAF50"
+              colors={["#4CAF50"]}
+            />
+          }
+        >
+          <View style={styles.content}>
+            {/* Debug Info (remove in production) */}
+            <View style={styles.debugContainer}>
+              <Text style={styles.debugText}>
+                Debug: {filteredAlerts.length} alerts shown
+              </Text>
+              <TouchableOpacity onPress={onRefresh} style={styles.debugButton}>
+                <RefreshCw size={16} color="#4CAF50" />
+                <Text style={styles.debugButtonText}>Force Refresh</Text>
+              </TouchableOpacity>
+            </View>
+
+            {filteredAlerts.length === 0 ? (
+              <EmptyState filter={filter} />
+            ) : (
+              filteredAlerts.map((alert, index) => (
+                <AlertCard
+                  key={alert.id}
+                  alert={alert}
+                  delay={index * 50}
+                  onPress={() => {
+                    console.log("📌 Marking alert as read:", alert.id);
+                    markAsRead(alert.id);
+                  }}
+                />
+              ))
+            )}
+          </View>
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      )}
     </View>
+  );
+}
+
+// Empty State Component
+function EmptyState({ filter }: { filter: string }) {
+  return (
+    <Animated.View
+      entering={FadeInDown.delay(200).springify()}
+      style={styles.emptyState}
+    >
+      <View style={styles.emptyIconContainer}>
+        <Bell size={64} color="#A5D6A7" strokeWidth={1.5} />
+      </View>
+      <Text style={styles.emptyTitle}>No Alerts</Text>
+      <Text style={styles.emptyText}>
+        You&apos;re all caught up! No {filter !== "all" ? filter : ""} alerts to
+        show.
+      </Text>
+    </Animated.View>
   );
 }
 
@@ -152,16 +225,22 @@ function AlertCard({
   delay: number;
   onPress: () => void;
 }) {
-  const getSeverityVariant = () => {
+  const getSeverityVariant = ():
+    | "success"
+    | "warning"
+    | "danger"
+    | "info"
+    | "default" => {
     switch (alert.severity) {
       case "critical":
-        return "danger";
       case "high":
         return "danger";
       case "medium":
         return "warning";
-      default:
+      case "low":
         return "info";
+      default:
+        return "default";
     }
   };
 
@@ -169,46 +248,47 @@ function AlertCard({
     const iconProps = { size: 24, strokeWidth: 2 };
     switch (alert.severity) {
       case "critical":
-        return <AlertCircle {...iconProps} color="#EF4444" />;
+        return <AlertCircle {...iconProps} color="#EF5350" />;
       case "high":
-        return <AlertTriangle {...iconProps} color="#F59E0B" />;
+        return <AlertTriangle {...iconProps} color="#FFA726" />;
       case "medium":
-        return <Zap {...iconProps} color="#F59E0B" />;
+        return <Zap {...iconProps} color="#FFA726" />;
       default:
-        return <Info {...iconProps} color="#3B82F6" />;
+        return <Info {...iconProps} color="#42A5F5" />;
     }
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
 
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffMins < 1) return "Just now";
+      if (diffMins < 60) return `${diffMins}m ago`;
 
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
 
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays}d ago`;
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays === 1) return "Yesterday";
+      if (diffDays < 7) return `${diffDays}d ago`;
 
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+    } catch (err) {
+      return "Recently";
+    }
   };
 
   return (
     <Animated.View entering={FadeInDown.delay(delay).springify()}>
       <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
         <Card
-          style={{
-            ...styles.alertCard,
-            ...(!alert.is_read ? styles.alertCardUnread : {}),
-          }}
+          style={[styles.alertCard, !alert.is_read && styles.alertCardUnread]}
         >
           <View style={styles.alertHeader}>
             <View style={styles.alertIconContainer}>{getSeverityIcon()}</View>
@@ -216,7 +296,7 @@ function AlertCard({
               <View style={styles.alertTop}>
                 <Badge
                   label={alert.severity}
-                  variant={getSeverityVariant() as any}
+                  variant={getSeverityVariant()}
                   size="sm"
                 />
                 <Text style={styles.alertTime}>
@@ -241,7 +321,7 @@ function AlertCard({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
+    backgroundColor: "#F1F8E9",
   },
   header: {
     paddingTop: 60,
@@ -256,13 +336,53 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: Layout.fontSize.md,
-    color: "rgba(255,255,255,0.9)",
+    color: "rgba(255,255,255,0.95)",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: "#4CAF50",
+  },
+  debugContainer: {
+    backgroundColor: "#E8F5E9",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  debugText: {
+    fontSize: 12,
+    color: "#2E7D32",
+    fontFamily: "monospace",
+  },
+  debugButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  debugButtonText: {
+    fontSize: 12,
+    color: "#4CAF50",
+    fontWeight: "600",
   },
   filtersContainer: {
     flexDirection: "row",
     paddingHorizontal: Layout.spacing.lg,
     paddingVertical: Layout.spacing.md,
     gap: Layout.spacing.sm,
+    backgroundColor: "#FFFFFF",
   },
   filterButton: {
     flex: 1,
@@ -272,25 +392,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: Layout.borderRadius.md,
-    backgroundColor: Colors.light.card,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: "#C8E6C9",
     gap: 6,
   },
   filterButtonActive: {
-    backgroundColor: Colors.light.primary,
-    borderColor: Colors.light.primary,
+    backgroundColor: "#4CAF50",
+    borderColor: "#4CAF50",
   },
   filterLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: Colors.light.text,
+    color: "#2E7D32",
   },
   filterLabelActive: {
     color: "#FFFFFF",
   },
   filterBadge: {
-    backgroundColor: Colors.light.backgroundSecondary,
+    backgroundColor: "#E8F5E9",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
@@ -301,7 +421,7 @@ const styles = StyleSheet.create({
   filterCount: {
     fontSize: 12,
     fontWeight: "700",
-    color: Colors.light.text,
+    color: "#2E7D32",
   },
   filterCountActive: {
     color: "#FFFFFF",
@@ -319,7 +439,7 @@ const styles = StyleSheet.create({
   },
   alertCardUnread: {
     borderLeftWidth: 4,
-    borderLeftColor: Colors.light.primary,
+    borderLeftColor: "#4CAF50",
   },
   alertHeader: {
     flexDirection: "row",
@@ -329,12 +449,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.light.backgroundSecondary,
+    backgroundColor: "#E8F5E9",
     alignItems: "center",
     justifyContent: "center",
-  },
-  alertIcon: {
-    fontSize: 24,
   },
   alertInfo: {
     flex: 1,
@@ -347,11 +464,11 @@ const styles = StyleSheet.create({
   },
   alertTime: {
     fontSize: 12,
-    color: Colors.light.textTertiary,
+    color: "#81C784",
   },
   alertMessage: {
     fontSize: Layout.fontSize.sm,
-    color: Colors.light.text,
+    color: "#1B5E20",
     lineHeight: 20,
     marginBottom: 8,
   },
@@ -364,12 +481,12 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: "#4CAF50",
   },
   unreadText: {
     fontSize: 12,
     fontWeight: "600",
-    color: Colors.light.primary,
+    color: "#4CAF50",
   },
   emptyState: {
     alignItems: "center",
@@ -381,12 +498,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: Layout.fontSize.xl,
     fontWeight: "700",
-    color: Colors.light.text,
+    color: "#2E7D32",
     marginBottom: Layout.spacing.xs,
   },
   emptyText: {
     fontSize: Layout.fontSize.md,
-    color: Colors.light.textSecondary,
+    color: "#558B2F",
     textAlign: "center",
     paddingHorizontal: Layout.spacing.xl,
   },

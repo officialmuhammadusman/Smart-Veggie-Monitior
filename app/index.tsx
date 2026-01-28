@@ -1,6 +1,5 @@
 // app/index.tsx
 import { useAuth } from "@/hooks/useAuth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Redirect } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 
@@ -8,14 +7,6 @@ export default function Index() {
   const { user, loading } = useAuth();
 
   // Check if user has completed onboarding
-  const checkOnboarding = async () => {
-    try {
-      const hasSeenOnboarding = await AsyncStorage.getItem("hasSeenOnboarding");
-      return hasSeenOnboarding === "true";
-    } catch {
-      return false;
-    }
-  };
 
   if (loading) {
     return (

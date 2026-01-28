@@ -1,20 +1,20 @@
 // app/(auth)/forgot-password.tsx
 import { Button } from "@/components/ui/Button";
-import { Colors } from "@/constants/Colors";
 import { Layout } from "@/constants/Layout";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { Lock } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 
@@ -52,7 +52,7 @@ export default function ForgotPasswordScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <LinearGradient
-        colors={["#4c669f", "#3b5998", "#ffffff"]}
+        colors={["#E8F5E9", "#FFFFFF", "#F1F8E9"]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -68,7 +68,7 @@ export default function ForgotPasswordScreen() {
           style={styles.header}
         >
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>🔒</Text>
+            <Lock size={50} color="#4CAF50" />
           </View>
           <Text style={styles.title}>Forgot Password?</Text>
           <Text style={styles.subtitle}>
@@ -92,7 +92,7 @@ export default function ForgotPasswordScreen() {
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
-                  placeholderTextColor={Colors.light.textTertiary}
+                  placeholderTextColor="#9E9E9E"
                   editable={!sent}
                 />
               </View>
@@ -127,14 +127,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.3)",
+    backgroundColor: "rgba(76, 175, 80, 0.3)",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 10,
   },
   backIcon: {
     fontSize: 24,
-    color: "#FFFFFF",
+    color: "#2E7D32",
   },
   content: {
     flex: 1,
@@ -149,24 +149,29 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: Layout.spacing.md,
-  },
-  iconText: {
-    fontSize: 50,
+    shadowColor: "#4CAF50",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   title: {
     fontSize: Layout.fontSize.xxl,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: "#2E7D32",
     marginBottom: Layout.spacing.xs,
     textAlign: "center",
   },
   subtitle: {
     fontSize: Layout.fontSize.md,
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "#558B2F",
     textAlign: "center",
     paddingHorizontal: Layout.spacing.xl,
     lineHeight: 22,
@@ -175,6 +180,7 @@ const styles = StyleSheet.create({
   formBlur: {
     borderRadius: Layout.borderRadius.xl,
     overflow: "hidden",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
   },
   form: {
     padding: Layout.spacing.lg,
@@ -185,21 +191,22 @@ const styles = StyleSheet.create({
   label: {
     fontSize: Layout.fontSize.sm,
     fontWeight: "600",
-    color: Colors.light.text,
+    color: "#2E7D32",
     marginBottom: Layout.spacing.xs,
   },
   input: {
     height: 50,
     borderWidth: 2,
-    borderColor: Colors.light.border,
+    borderColor: "#C8E6C9",
     borderRadius: Layout.borderRadius.md,
     paddingHorizontal: Layout.spacing.md,
     fontSize: Layout.fontSize.md,
     backgroundColor: "#FFFFFF",
-    color: Colors.light.text,
+    color: "#1B5E20",
   },
   submitButton: {
     marginBottom: Layout.spacing.md,
+    backgroundColor: "#4CAF50",
   },
   backToLogin: {
     alignItems: "center",
@@ -207,7 +214,7 @@ const styles = StyleSheet.create({
   },
   backToLoginText: {
     fontSize: Layout.fontSize.md,
-    color: Colors.light.primary,
+    color: "#4CAF50",
     fontWeight: "600",
   },
 });

@@ -1,15 +1,14 @@
 // components/ui/Button.tsx
-import { Colors } from "@/constants/Colors";
 import { Layout } from "@/constants/Layout";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TextStyle,
-    TouchableOpacity,
-    ViewStyle,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TextStyle,
+  TouchableOpacity,
+  ViewStyle,
 } from "react-native";
 
 interface ButtonProps {
@@ -62,8 +61,8 @@ export function Button({
     const variantStyles: Record<string, TextStyle> = {
       primary: { color: "#FFFFFF" },
       secondary: { color: "#FFFFFF" },
-      outline: { color: Colors.light.primary },
-      ghost: { color: Colors.light.primary },
+      outline: { color: "#4CAF50" },
+      ghost: { color: "#4CAF50" },
     };
 
     return { ...baseStyle, ...sizeStyles[size], ...variantStyles[variant] };
@@ -81,7 +80,7 @@ export function Button({
         activeOpacity={0.8}
       >
         <LinearGradient
-          colors={["#4c669f", "#3b5998", "#ffffff"]}
+          colors={["#66BB6A", "#4CAF50", "#388E3C"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.gradient}
@@ -103,7 +102,7 @@ export function Button({
       style={[
         styles.button,
         getButtonStyle(),
-        variant === "secondary" && { backgroundColor: Colors.light.secondary },
+        variant === "secondary" && { backgroundColor: "#66BB6A" },
         variant === "outline" && styles.outlineButton,
         variant === "ghost" && styles.ghostButton,
         style,
@@ -131,7 +130,7 @@ const styles = StyleSheet.create({
   },
   outlineButton: {
     borderWidth: 2,
-    borderColor: Colors.light.primary,
+    borderColor: "#4CAF50",
     backgroundColor: "transparent",
   },
   ghostButton: {

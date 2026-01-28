@@ -85,7 +85,7 @@ export const Config = {
   // Development
   dev: {
     showLogs: __DEV__,
-    mockData: true, // Set to false when using real Supabase
+    mockData: false, // Set to false when using real Supabase
     skipOnboarding: false,
   },
 };

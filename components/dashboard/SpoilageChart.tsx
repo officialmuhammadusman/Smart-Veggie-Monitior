@@ -29,7 +29,6 @@ export function SpoilageChart({ data }: SpoilageChartProps) {
 
       <View style={styles.chart}>
         {data.map((item, index) => {
-          const total = item.fresh + item.warning + item.spoiled;
           const freshHeight = (item.fresh / maxValue) * 120;
           const warningHeight = (item.warning / maxValue) * 120;
           const spoiledHeight = (item.spoiled / maxValue) * 120;

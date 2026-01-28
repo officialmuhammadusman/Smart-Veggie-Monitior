@@ -1,20 +1,19 @@
 // app/device/add-device.tsx
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Colors } from "@/constants/Colors";
 import { Layout } from "@/constants/Layout";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Lightbulb, MapPin } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -54,7 +53,7 @@ export default function AddDeviceScreen() {
     <View style={styles.container}>
       {/* Header */}
       <LinearGradient
-        colors={["#4c669f", "#3b5998", "#ffffff"]}
+        colors={["#66BB6A", "#4CAF50", "#388E3C"]}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -79,7 +78,7 @@ export default function AddDeviceScreen() {
           {/* Instructions */}
           <Animated.View entering={FadeInDown.delay(100).springify()}>
             <Card style={styles.instructionCard}>
-              <Lightbulb color={Colors.light.primary} size={48} />
+              <Lightbulb color="#4CAF50" size={48} />
               <Text style={styles.instructionTitle}>Setup Instructions</Text>
               <Text style={styles.instructionText}>
                 1. Power on your ESP32-CAM device{"\n"}
@@ -102,7 +101,7 @@ export default function AddDeviceScreen() {
                   placeholder="e.g., Storage Room A"
                   value={deviceName}
                   onChangeText={setDeviceName}
-                  placeholderTextColor={Colors.light.textTertiary}
+                  placeholderTextColor="#9E9E9E"
                 />
               </View>
 
@@ -113,7 +112,7 @@ export default function AddDeviceScreen() {
                   placeholder="e.g., Main Warehouse"
                   value={location}
                   onChangeText={setLocation}
-                  placeholderTextColor={Colors.light.textTertiary}
+                  placeholderTextColor="#9E9E9E"
                 />
               </View>
 
@@ -125,7 +124,7 @@ export default function AddDeviceScreen() {
                   value={deviceId}
                   onChangeText={setDeviceId}
                   autoCapitalize="characters"
-                  placeholderTextColor={Colors.light.textTertiary}
+                  placeholderTextColor="#9E9E9E"
                 />
                 <Text style={styles.helperText}>
                   Find this on your ESP32-CAM display
@@ -145,7 +144,7 @@ export default function AddDeviceScreen() {
                     {deviceName || "Device Name"}
                   </Text>
                   <View style={styles.previewLocationContainer}>
-                    <MapPin size={16} color={Colors.light.textSecondary} />
+                    <MapPin size={16} color="#66BB6A" />
                     <Text style={styles.previewLocation}>
                       {location || "Location"}
                     </Text>
@@ -188,7 +187,7 @@ export default function AddDeviceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
+    backgroundColor: "#F1F8E9",
   },
   header: {
     paddingTop: 60,
@@ -203,7 +202,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255,255,255,0.25)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -225,27 +224,27 @@ const styles = StyleSheet.create({
     paddingTop: Layout.spacing.lg,
   },
   instructionCard: {
-    backgroundColor: Colors.light.primaryLight,
-    borderColor: Colors.light.primary,
+    backgroundColor: "#E8F5E9",
+    borderColor: "#4CAF50",
     marginBottom: Layout.spacing.xl,
     alignItems: "center",
   },
   instructionTitle: {
     fontSize: Layout.fontSize.lg,
     fontWeight: "700",
-    color: Colors.light.text,
+    color: "#2E7D32",
     marginBottom: Layout.spacing.sm,
   },
   instructionText: {
     fontSize: Layout.fontSize.sm,
-    color: Colors.light.textSecondary,
+    color: "#558B2F",
     lineHeight: 22,
     textAlign: "center",
   },
   sectionTitle: {
     fontSize: Layout.fontSize.lg,
     fontWeight: "700",
-    color: Colors.light.text,
+    color: "#2E7D32",
     marginBottom: Layout.spacing.md,
   },
   formCard: {
@@ -257,22 +256,22 @@ const styles = StyleSheet.create({
   label: {
     fontSize: Layout.fontSize.sm,
     fontWeight: "600",
-    color: Colors.light.text,
+    color: "#2E7D32",
     marginBottom: Layout.spacing.xs,
   },
   input: {
     height: 50,
     borderWidth: 2,
-    borderColor: Colors.light.border,
+    borderColor: "#C8E6C9",
     borderRadius: Layout.borderRadius.md,
     paddingHorizontal: Layout.spacing.md,
     fontSize: Layout.fontSize.md,
     backgroundColor: "#FFFFFF",
-    color: Colors.light.text,
+    color: "#1B5E20",
   },
   helperText: {
     fontSize: 12,
-    color: Colors.light.textTertiary,
+    color: "#81C784",
     marginTop: 4,
   },
   previewCard: {
@@ -287,7 +286,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: Colors.light.textTertiary,
+    backgroundColor: "#A5D6A7",
     marginRight: Layout.spacing.sm,
   },
   previewInfo: {
@@ -296,7 +295,7 @@ const styles = StyleSheet.create({
   previewName: {
     fontSize: Layout.fontSize.lg,
     fontWeight: "700",
-    color: Colors.light.text,
+    color: "#1B5E20",
     marginBottom: 4,
   },
   previewLocationContainer: {
@@ -305,12 +304,12 @@ const styles = StyleSheet.create({
   },
   previewLocation: {
     fontSize: Layout.fontSize.sm,
-    color: Colors.light.textSecondary,
+    color: "#558B2F",
     marginLeft: 4,
   },
   previewDivider: {
     height: 1,
-    backgroundColor: Colors.light.borderLight,
+    backgroundColor: "#C8E6C9",
     marginVertical: Layout.spacing.md,
   },
   previewFooter: {
@@ -320,12 +319,12 @@ const styles = StyleSheet.create({
   },
   previewLabel: {
     fontSize: 12,
-    color: Colors.light.textTertiary,
+    color: "#81C784",
   },
   previewValue: {
     fontSize: Layout.fontSize.sm,
     fontWeight: "600",
-    color: Colors.light.text,
+    color: "#2E7D32",
   },
   addButton: {
     marginBottom: Layout.spacing.md,

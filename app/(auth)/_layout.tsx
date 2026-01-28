@@ -8,13 +8,14 @@ export default function AuthLayout() {
         headerShown: false,
         animation: "fade",
         contentStyle: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#E8F5E9", // Light green background matching the gradient
         },
       }}
     >
       <Stack.Screen name="login" />
       <Stack.Screen name="signup" />
       <Stack.Screen name="forgot-password" />
+      <Stack.Screen name="verify-otp" />
     </Stack>
   );
 }

@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Toast from "react-native-toast-message";
 
 // Prevent auto-hiding splash screen
 SplashScreen.preventAutoHideAsync();
@@ -25,7 +26,7 @@ export default function RootLayout() {
           headerShown: false,
           animation: "fade",
           contentStyle: {
-            backgroundColor: colorScheme === "dark" ? "#111827" : "#FFFFFF",
+            backgroundColor: colorScheme === "dark" ? "#1B5E20" : "#F1F8E9",
           },
         }}
       >
@@ -40,7 +41,16 @@ export default function RootLayout() {
             animation: "slide_from_bottom",
           }}
         />
+        <Stack.Screen
+          name="device/add-device"
+          options={{
+            presentation: "modal",
+            animation: "slide_from_bottom",
+          }}
+        />
       </Stack>
+      {/* Toast Component - Must be at the end */}
+      <Toast />
     </GestureHandlerRootView>
   );
 }
